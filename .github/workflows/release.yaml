@@ -1,0 +1,55 @@
+name: Release new Docker image
+
+on:
+  workflow_dispatch:
+    inputs:
+      swark_version:
+        description: 'Version of swark/swark Docker image to release'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+
+    name: Release official Docker image for ${{ inputs.swark_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Remove optional "v" prefix
+        id: version
+        run: |
+          echo "version=${VERSION#v}" >> "$GITHUB_OUTPUT"
+        env:
+          VERSION: ${{ inputs.swark_version }}
+
+
+      - name: Find root directory for Dockerfile
+        id: find_root 
+        run: |
+          set -x
+          chmod +x ./find_root_directory.sh
+          root=$(./find_root_directory.sh $VERSION || true)
+
+          if [ ! -d "$root" ]; then
+            echo $root
+            exit 40
+          fi
+          
+          echo "Using $root as root directory for Docker image"
+          echo "directory=$root"  >> "$GITHUB_OUTPUT"
+
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: "{{defaultContext}}:${{ steps.find_root.outputs.directory }}" 
+          push: false
+          tags: swark/swark:${{ steps.version.outputs.version }}
+        env:
+          SWARK_SKELETON_VERSION: "${{ steps.version.outputs.version }}"
