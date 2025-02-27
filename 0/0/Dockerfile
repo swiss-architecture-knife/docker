@@ -1,7 +1,11 @@
-LABEL "vendor"="dreitier GmbH"
-LABEL "application"="swark"
+FROM serversideup/php:8.4-fpm-apache AS base
 
-FROM serversideup/php:8.4-fpm-alpine as BASE
+LABEL org.opencontainers.image.authors="dreitier GmbH <info@dreitier.com>" \
+      org.opencontainers.image.title="swark, Swiss Architecture Knife" \
+      org.opencontainers.image.description="Better software and infrastructure architecture documentation" \
+      org.opencontainers.image.url="https://swiss-architecture-knife.github.com" \
+      org.opencontainers.image.source="https://github.com/swiss-architecture-knife/docker" \
+      org.opencontainers.image.vendor="dreitier GmbH"
 
 USER root
 RUN install-php-extensions gd
@@ -16,8 +20,8 @@ ARG GROUP_ID
 USER root
 
 # Set the user ID and group ID for www-data
-RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID  && \
-    docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
+#RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID  && \
+#    docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service apache
 
 # Drop privileges back to www-data    
 USER www-data
@@ -38,6 +42,25 @@ RUN echo "user = www-data" >> /usr/local/etc/php-fpm.d/docker-php-serversideup-p
 # Production Image
 ############################################
 FROM base AS deploy
-COPY --chown=www-data:www-data . /var/www/html
+ARG RELEASE_FILE
+
+USER root
+COPY entrypoint.d/01-set-default-app_key.sh /etc/entrypoint.d
+RUN chmod +x /etc/entrypoint.d/*
+
+COPY ${RELEASE_FILE} /
+RUN set -ex; \
+    tar -xf /${RELEASE_FILE} -C /var/www/html --strip-components=1;
+
+RUN set -ex; \
+    rm /${RELEASE_FILE}
+
+RUN set -ex; \
+    cp /var/www/html/.env.example /var/www/html/.env;
+
+RUN chown -R www-data:www-data /var/www/html
 
 USER www-data
+
+COPY entrypoint.sh \
+    /usr/local/bin/

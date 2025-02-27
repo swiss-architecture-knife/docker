@@ -1,8 +1,6 @@
 #/bin/sh
-
 version=$1
-
-
+version=${version/#v/}
 major=`echo $version | cut -d. -f1`
 minor=`echo $version | cut -d. -f2`
 revision=`echo $version | cut -d. -f3`
