@@ -7,11 +7,22 @@ on:
         description: 'Version of swark/swark Docker image to release'
         required: true
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: swiss-architecture-knife/swark
+
 jobs:
   release:
     runs-on: ubuntu-24.04
 
     name: Release official Docker image for ${{ inputs.swark_version }}
+    
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,33 +34,40 @@ jobs:
         env:
           VERSION: ${{ inputs.swark_version }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Find root directory for Dockerfile
-        id: find_root 
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare image building
+        id: build
         run: |
-          set -x
-          chmod +x ./find_root_directory.sh
-          root=$(./find_root_directory.sh $VERSION || true)
-
-          if [ ! -d "$root" ]; then
-            echo $root
-            exit 40
-          fi
-          
-          echo "Using $root as root directory for Docker image"
-          echo "directory=$root"  >> "$GITHUB_OUTPUT"
-
+          make VERSION=${VERSION} prepare
         env:
           VERSION: ${{ steps.version.outputs.version }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ steps.build.outputs.sanitized_version }}
+            type=raw,value=${{ steps.build.outputs.release_version }}
+            type=raw,value=latest
 
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:${{ steps.find_root.outputs.directory }}" 
-          push: false
-          tags: swark/swark:${{ steps.version.outputs.version }}
-        env:
-          SWARK_SKELETON_VERSION: "${{ steps.version.outputs.version }}"
+          context: "./${{ steps.build.outputs.build_directory }}" 
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            SWARK_VERSION=${{ steps.version.outputs.version }}
+            RELEASE_FILE=${{ steps.build.outputs.release_file }}

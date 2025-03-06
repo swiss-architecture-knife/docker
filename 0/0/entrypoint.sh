@@ -1,0 +1,2 @@
+#!/bin/sh
+# for convenience
