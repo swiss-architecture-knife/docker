@@ -35,9 +35,23 @@ for ext in tar.bz2 tar.bz2.sha512; do
     fi
 done;
 
-docker build -t swark/swark:${version} \
-    --build-arg SWARK_VERSION=$version \
-    --build-arg RELEASE_FILE=swark-${version}.tar.bz2 \
-    .
+RELEASE_FILE=swark-${version}.tar.bz2
 
-docker tag swark/swark:${version} swark/swark:latest
+if [ -v GITHUB_OUTPUT ]; then
+    echo "build_directory=${BUILD_DIRECTORY}" >> "$GITHUB_OUTPUT"
+    echo "release_file=${BUILD_DIRECTORY}" >> "$GITHUB_OUTPUT"
+    echo "version=${version}" >> "$GITHUB_OUTPUT"
+else 
+    echo "Not running on GitHub, no publishing of variables"
+fi
+
+if [ -v WITH_DOCKER_BUILD ]; then
+    docker build -t swark/swark:${version} \
+        --build-arg SWARK_VERSION=$version \
+        --build-arg RELEASE_FILE=$RELEASE_FILE \
+    .
+fi
+
+if [ -v WITH_DOCKER_PUSH ]; then
+    docker tag swark/swark:${version} swark/swark:latest
+fi
