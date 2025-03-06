@@ -1,0 +1,49 @@
+
+services:
+  app: &app
+    image: swark/swark:latest
+    env_file: .env
+    environment:
+      - AUTORUN_ENABLED=true
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USERNAME=swark
+      - DB_PASSWORD=swark
+      - DB_DATABASE=swark
+#      - APP_LOCALE=de
+      - APP_KEY=Th1s1sARandom5tringW1thLength32.
+    ports:
+      - "8080:8080" 
+      - "8443:8443" 
+    volumes:
+      - data:/var/www/html/storage
+    restart: always
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10.11
+    environment:
+      - MARIADB_RANDOM_ROOT_PASSWORD=true
+      - MARIADB_PASSWORD=swark
+      - MARIADB_DATABASE=swark
+      - MARIADB_USER=swark
+    ports:
+      - "33060:3306"
+    volumes:
+      - mariadbsqldata:/var/lib/mariadb
+    restart: always
+
+#  cron:
+#    <<: *app
+#    command: cron.sh
+
+#  queue:
+#    <<: *app
+#    command: queue.sh
+
+volumes:
+  data:
+    driver: local
+  mariadbsqldata:
+    driver: local
