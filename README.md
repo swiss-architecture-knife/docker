@@ -54,17 +54,17 @@ cd .examples/full
 docker-compose up
 ```
 
-## Environment variables
+## Configure swark via environment variables
 
-swark uses Laravel, so we are also using Laravel's configuration defaults. Please look through the Laravel documentation if you need more customization.
-Furthermore, the docker image uses [serversideup/php](https://github.com/serversideup/docker-php). You can find a full list of further related customizations in [their docs](https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification).
+swark uses Laravel, so we are also using Laravel's configuration defaults. Please look through the Laravel documentation if you have to configure something else.
+Furthermore, the docker image uses [serversideup/php](https://github.com/serversideup/docker-php). You can find a full list of their configuration options [their docs](https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification).
 
-| Variable | Default | Description |
+| Variable | Default (type:value) | Description |
 | --- | --- | --- |
 | `ADMIN_EMAIL` | `string:<empty>` | If set, a new user with that email is created |
 | `ADMIN_PASSWORD` | `string:<empty>` | If set and `ADMIN_EMAIL` is present, this password is set for the initial user. If `ADMIN_PASSWORD` is *not* set but `ADMIN_EMAIL` is, a password is generated during first startup. |
 | `AUTORUN_ENABLED` | `bool:false` | Run database migrations during startups. Set it to `true`. |
-| `APP_KEY` | `char(32):<random_string> | Application key for Laravel application. If you do not define one, a random string with length of 32 is created. If you define an `APP_KEY` it *must* have a length of exactly 32 characters. |
+| `APP_KEY` | `char(32):<random_string>` | Application key for Laravel application. If you do not define one, a random string with length of 32 is created. If you define an `APP_KEY` it __must__ have a length of exactly 32 characters. |
 | `SWARK_CONTENT_PATH` | `string:storage/app/swark/_default` | Content repository in which static content is stored. |
 | `DB_HOST` | `string:127.0.0.1` | MariaDB hostname or IP |
 | `DB_PORT` | `int:3306` | MariaDB instance port |
