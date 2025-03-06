@@ -39,3 +39,5 @@ docker build -t swark/swark:${version} \
     --build-arg SWARK_VERSION=$version \
     --build-arg RELEASE_FILE=swark-${version}.tar.bz2 \
     .
+
+docker tag swark/swark:${version} swark/swark:latest
