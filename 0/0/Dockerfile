@@ -8,7 +8,7 @@ LABEL org.opencontainers.image.authors="dreitier GmbH <info@dreitier.com>" \
       org.opencontainers.image.vendor="dreitier GmbH"
 
 USER root
-RUN install-php-extensions gd
+RUN install-php-extensions gd intl
 
 # We can pass USER_ID and GROUP_ID as build arguments
 # to ensure the www-data user has the same UID and GID
