@@ -54,22 +54,23 @@ FROM base AS deploy
 ARG RELEASE_FILE
 
 USER root
+
+# Extract the release straight from the build context; the archive never becomes an image layer.
+# Extracting and chown'ing in a single layer avoids storing every file twice.
+RUN --mount=type=bind,source=${RELEASE_FILE},target=/tmp/release.tar.bz2 \
+    set -ex; \
+    tar -xf /tmp/release.tar.bz2 -C /var/www/html --strip-components=1; \
+    cp /var/www/html/.env.example /var/www/html/.env; \
+    chown -R www-data:www-data /var/www/html
+
+# Add helper scripts for sttartup
 COPY --chmod=u+x entrypoint.d/02-set-default-app_key.sh /etc/entrypoint.d
 COPY --chmod=u+x entrypoint.d/60-create-default-admin.sh /etc/entrypoint.d
+COPY --chmod=u+x entrypoint.d/61-import-data.sh /etc/entrypoint.d
+
 RUN chmod +x /etc/entrypoint.d/*
 
-COPY ${RELEASE_FILE} /
-RUN set -ex; \
-    tar -xf /${RELEASE_FILE} -C /var/www/html --strip-components=1;
-
-RUN set -ex; \
-    rm /${RELEASE_FILE}
-
-RUN set -ex; \
-    cp /var/www/html/.env.example /var/www/html/.env;
-
-RUN chown -R www-data:www-data /var/www/html
-
+# Switch user
 USER www-data
 
 COPY entrypoint.sh \
