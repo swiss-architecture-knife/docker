@@ -1,4 +1,4 @@
-FROM serversideup/php:8.4-fpm-apache AS base
+FROM serversideup/php:8.5-fpm-apache AS base
 
 LABEL org.opencontainers.image.authors="dreitier GmbH <info@dreitier.com>" \
       org.opencontainers.image.title="swark, Swiss Architecture Knife" \
