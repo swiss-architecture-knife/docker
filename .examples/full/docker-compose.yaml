@@ -1,7 +1,7 @@
 
 services:
   app: &app
-    image: swark/swark:latest
+    image: swark/swark:${SWARK_TAG}
     env_file: .env
     environment:
       - DB_HOST=db
