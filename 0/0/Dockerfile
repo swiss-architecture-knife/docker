@@ -10,6 +10,15 @@ LABEL org.opencontainers.image.authors="dreitier GmbH <info@dreitier.com>" \
 USER root
 RUN install-php-extensions gd intl
 
+# Install default Java runtime and Graphviz
+# man1 directory is required by the JRE's postinst script on slim Debian images
+RUN set -ex; \
+    mkdir -p /usr/share/man/man1; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends default-jre-headless graphviz vim-tiny; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 # We can pass USER_ID and GROUP_ID as build arguments
 # to ensure the www-data user has the same UID and GID
 # as the user running Docker.
