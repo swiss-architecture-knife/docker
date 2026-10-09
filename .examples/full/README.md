@@ -21,8 +21,18 @@ Go to [http://your-swark-host:8080](http://your-swark-host:8080). This is the fr
 
 If you want to set a static password the first or change the default admin email, set `ADMIN_EMAIL` or `ADMIN_PASSWORD` in the `docker-compose.yaml` file.
 
-## Adding static content
-To change static content in `swark`, navigate to the `laravel_data` volume on your host. On Fedora, this would be `//var/lib/docker/volumes/full_swark_data/_data/`. Create the following file so that `Strategy` content on the start page is updated:
+## Static data
+### Data model
+On start-up of the swark container, two locations are checked and data from there is automatically imported:
+
+- `./default-importables`: Contains default regulation topics from swark itself 
+- `./custom-importables`: Your custom importables which you have identified in your company or at your customer.
+
+If the directory `./custom-importables` exists and contains the correct data (e.g. the `import.xlsx`), then that data is automatically loaded on startup.
+You can add the `import.xlsx` to `/var/lib/docker/volumes/swark_custom_importables/_data/import.xlsx` on your local machine when using Fedora. 
+
+### Adding static content
+To change static content in `swark`, navigate to the `swark_custom_content` volume on your host. On Fedora, this would be `/var/lib/docker/volumes/full_swark_custom_content/_data/`. Create the following file so that `Strategy` content on the start page is updated:
 
 ```
 cd $SWARK_DATA_DIR

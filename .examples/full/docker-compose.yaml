@@ -18,13 +18,14 @@ services:
       # - APP_LOCALE=de
       - APP_KEY=Th1s1sARandom5tringW1thLength32.
       # where to find our static content? Use git to store that
-      - SWARK_CONTENT_PATH=./swark_content
+      - SWARK_CONTENT_PATH=./custom-content
     ports:
       - "8080:8080" 
       - "8443:8443" 
     volumes:
       - laravel_data:/var/www/html/storage
-      - swark_data:/var/www/html/swark_content
+      - swark_custom_content:/var/www/html/custom-content
+      - swark_custom_importables:/var/www/html/custom-importables
     restart: always
     depends_on:
       - db
@@ -53,7 +54,9 @@ services:
 volumes:
   laravel_data:
     driver: local
-  swark_data:
+  swark_custom_content:
     driver: local
+  swark_custom_importables:
+    driver: local  
   mariadbsqldata:
     driver: local
