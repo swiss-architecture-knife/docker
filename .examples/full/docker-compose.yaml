@@ -18,7 +18,7 @@ services:
       # - APP_LOCALE=de
       - APP_KEY=Th1s1sARandom5tringW1thLength32.
       # where to find our static content? Use git to store that
-      - SWARK_CONTENT_PATH=./custom-content
+      - SWARK_CONTENT_PATH=/var/www/html/custom-content
     ports:
       - "8080:8080" 
       - "8443:8443" 
