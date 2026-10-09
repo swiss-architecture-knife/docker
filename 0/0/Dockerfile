@@ -54,8 +54,8 @@ FROM base AS deploy
 ARG RELEASE_FILE
 
 USER root
-COPY entrypoint.d/02-set-default-app_key.sh /etc/entrypoint.d
-COPY entrypoint.d/60-create-default-admin.sh /etc/entrypoint.d
+COPY --chmod=u+x entrypoint.d/02-set-default-app_key.sh /etc/entrypoint.d
+COPY --chmod=u+x entrypoint.d/60-create-default-admin.sh /etc/entrypoint.d
 RUN chmod +x /etc/entrypoint.d/*
 
 COPY ${RELEASE_FILE} /
